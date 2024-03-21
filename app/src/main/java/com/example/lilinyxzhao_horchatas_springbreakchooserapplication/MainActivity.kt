@@ -41,11 +41,13 @@ class MainActivity : ComponentActivity() {
     private var acceleration = 0f
     private var currentAcceleration = 0f
     private var lastAcceleration = 0f
-    private val threshold = 10
+    //private val threshold = 10
     private lateinit var speechRecognizer: SpeechRecognizer
     private lateinit var speechRecognizerIntent: Intent
     private lateinit var editTextPhrase: EditText
-    private lateinit var selectedLanguage: String
+    //private lateinit var selectedLanguage: String
+    private var latestSelectedLanguage: String = ""
+    private lateinit var latestVacationSpotDetails: VacationSpot
 //    private var longitude: Double = 0.0
 //    private var latitude: Double = 0.0
     private lateinit var vacationSpotDetails: VacationSpot
@@ -66,13 +68,18 @@ class MainActivity : ComponentActivity() {
         languageSelector.setContent {
             LiliNyxZhaoHorchatasSpringBreakChooserApplicationTheme {
                 LanguageSelector (
-                    onLanguageSelected = { selectedLanguage, randomSpot->
-                    startListening()
-//                    this@MainActivity.selectedLanguage = selectedLanguage
-//                    this@MainActivity.longitude = longitude
-//                    this@MainActivity.latitude = latitude
-                    launchGoogleMapsForVacationSpot(selectedLanguage, randomSpot)
-                },
+                    onLanguageSelected = { selectedLanguage, randomSpot ->
+                        latestSelectedLanguage = selectedLanguage
+                        latestVacationSpotDetails = randomSpot
+                        startListening()
+                    },
+//                    onLanguageSelected = { selectedLanguage, randomSpot->
+//                    startListening()
+////                    this@MainActivity.selectedLanguage = selectedLanguage
+////                    this@MainActivity.longitude = longitude
+////                    this@MainActivity.latitude = latitude
+//                    launchGoogleMapsForVacationSpot(selectedLanguage, randomSpot)
+//                },
                     getVacationSpotForLanguage = {language -> getVacationSpotForLanguage(language)}
                 )
             }
@@ -147,8 +154,8 @@ class MainActivity : ComponentActivity() {
             val delta: Float = currentAcceleration - lastAcceleration
             acceleration = acceleration * 0.9f + delta
 
-            if (acceleration > threshold) {
-                launchGoogleMapsForVacationSpot(selectedLanguage, vacationSpotDetails) // Launch Google Maps
+            if (acceleration > 5 && latestSelectedLanguage.isNotEmpty()) {
+                launchGoogleMapsForVacationSpot(latestSelectedLanguage, latestVacationSpotDetails) // Launch Google Maps
             }
         }
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
